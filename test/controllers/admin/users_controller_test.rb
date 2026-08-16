@@ -134,4 +134,21 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "You cannot delete yourself.", flash[:alert]
     assert_nil @admin.reload.deleted_at
   end
+
+  test "admin grants book access from the admin UI" do
+    book = Book.create!(title: "UI Grant", book_type: :ebook)
+    user = users(:one)
+    post admin_user_book_access_index_path(user_id: user.id), params: { book_id: book.id }
+    assert_redirected_to admin_user_path(user)
+    assert BookAccessRule.exists?(user: user, book: book)
+  end
+
+  test "admin revokes book access from the admin UI" do
+    book = Book.create!(title: "UI Revoke", book_type: :ebook)
+    user = users(:one)
+    BookAccessRule.create!(user: user, book: book)
+    delete admin_user_book_access_path(user_id: user.id, id: book.id)
+    assert_redirected_to admin_user_path(user)
+    assert_not BookAccessRule.exists?(user: user, book: book)
+  end
 end
