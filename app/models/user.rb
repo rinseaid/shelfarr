@@ -39,6 +39,11 @@ class User < ApplicationRecord
 
   before_create :set_admin_if_first_user
 
+  # True when this user has been granted access to the given book (work + format).
+  def has_book_access?(book)
+    book_access_rules.exists?(book_id: book.id)
+  end
+
   # Check if the account is currently locked
   def locked?
     locked_until.present? && locked_until > Time.current
