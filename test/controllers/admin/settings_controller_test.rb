@@ -240,6 +240,15 @@ class Admin::SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /MP3, FLAC, and other chapter-based releases stay together/
   end
 
+  test "index shows strict visibility setting" do
+    get admin_settings_url
+
+    assert_response :success
+    assert_select "label", text: "Strict visibility"
+    assert_select "input[name='settings[strict_visibility]']"
+    assert_select "p", text: /acquired books are hidden from users without an explicit book access rule/
+  end
+
   test "index shows completed download import mode options and hardlink guidance" do
     SettingsService.set(:completed_download_import_mode, "hardlink")
 
@@ -318,6 +327,17 @@ class Admin::SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to admin_settings_path
     assert_equal true, SettingsService.get(:split_audiobook_bundle_imports)
+  end
+
+  test "bulk_update stores strict visibility setting" do
+    patch bulk_update_admin_settings_url, params: {
+      settings: {
+        strict_visibility: "true"
+      }
+    }
+
+    assert_redirected_to admin_settings_path
+    assert_equal true, SettingsService.get(:strict_visibility)
   end
 
   test "bulk_update stores a valid completed download import mode" do
