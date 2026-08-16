@@ -81,6 +81,12 @@ Rails.application.routes.draw do
         end
       end
       resources :users, only: [ :create ]
+      namespace :admin do
+        resources :users, only: [] do
+          resources :book_access, only: [ :index, :create ], controller: "book_access_rules"
+          delete "book_access/:book_id", to: "book_access_rules#destroy"
+        end
+      end
     end
   end
 
