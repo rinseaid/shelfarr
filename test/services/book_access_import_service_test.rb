@@ -35,7 +35,7 @@ class BookAccessImportServiceTest < ActiveSupport::TestCase
   test "does not duplicate an existing rule on reimport" do
     book = Book.create!(title: "Reimport", book_type: :ebook, open_library_work_id: "OL_REIMPORT")
     user = users(:one)
-    BookAccessRule.create!(user: user, book: book)
+    BookAccessRule.create!(user: user, book: book, granted_by: users(:two))
     result = BookAccessImportService.call(entries: [ { username: user.username, work_id: "OL_REIMPORT", book_type: "ebook" } ])
     assert result[:imported] == 1
     assert_equal 1, BookAccessRule.where(user: user, book: book).count

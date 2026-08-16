@@ -13,7 +13,8 @@ class BookAccessImportService
         errors << "no match for #{entry.inspect}"
         next
       end
-      BookAccessRule.find_or_create_by!(user: user, book: book, granted_by: granted_by)
+      rule = BookAccessRule.find_or_create_by!(user: user, book: book)
+      rule.update!(granted_by: granted_by) if rule.granted_by_id.nil?
       imported += 1
     rescue ActiveRecord::RecordInvalid => e
       errors << e.message
