@@ -7,7 +7,9 @@ module API
         before_action :ensure_admin
 
         def create
-          entries = Array(params[:rules]).map { |rule| rule.to_h.symbolize_keys }
+          entries = params.permit(rules: [ :username, :work_id, :book_type ])
+            .to_h[:rules].to_a
+            .map(&:symbolize_keys)
           result = BookAccessImportService.call(entries: entries, granted_by: Current.api_user)
           render json: { imported: result[:imported], errors: result[:errors] }, status: :created
         end
