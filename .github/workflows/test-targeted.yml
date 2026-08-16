@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       test_path:
-        description: 'Test file or path to run, e.g. test/services/duplicate_detection_service_test.rb'
+        description: 'Test files or path(s) to run, e.g. test/services/duplicate_detection_service_test.rb (space-separated for multiple files)'
         required: true
         type: string
 
@@ -41,4 +41,4 @@ jobs:
       - name: Run targeted tests
         env:
           RAILS_ENV: test
-        run: bin/rails test "${{ inputs.test_path }}"
+        run: bin/rails test ${{ inputs.test_path }}
