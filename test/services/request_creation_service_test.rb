@@ -554,4 +554,49 @@ class RequestCreationServiceTest < ActiveSupport::TestCase
     assert_not result.success?
     assert_includes result.errors.join, "Collection requests are not supported"
   end
+
+  test "creates a normal acquisition for a hidden acquired book under strict visibility" do
+    book = Book.create!(
+      title: "Hidden Acquired",
+      book_type: :ebook,
+      open_library_work_id: "OL_HIDDEN_ACQUIRED",
+      file_path: "/library/ebook/hidden-acquired"
+    )
+
+    SettingsService.set(:strict_visibility, true)
+
+    result = RequestCreationService.call(
+      user: @user,
+      work_id: "OL_HIDDEN_ACQUIRED",
+      book_types: [ "ebook" ],
+      metadata_attrs: { title: "Hidden Acquired" }
+    )
+
+    assert result.success?
+    request = result.created_requests.first
+    assert request.pending?
+    assert_equal book, request.book
+  end
+
+  test "blocks a visible acquired book for the requesting user" do
+    book = Book.create!(
+      title: "Visible Acquired",
+      book_type: :ebook,
+      open_library_work_id: "OL_VISIBLE_ACQUIRED",
+      file_path: "/library/ebook/visible-acquired"
+    )
+    BookAccessRule.create!(user: @user, book: book)
+
+    SettingsService.set(:strict_visibility, true)
+
+    result = RequestCreationService.call(
+      user: @user,
+      work_id: "OL_VISIBLE_ACQUIRED",
+      book_types: [ "ebook" ],
+      metadata_attrs: { title: "Visible Acquired" }
+    )
+
+    assert_not result.success?
+    assert_includes result.errors.join, "already in your library"
+  end
 end
