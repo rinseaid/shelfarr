@@ -101,7 +101,9 @@ Rails.application.routes.draw do
     root "dashboard#index"
     post "check_updates", to: "dashboard#check_updates"
     post "run_health_check", to: "dashboard#run_health_check"
-    resources :users
+    resources :users do
+      resources :book_access, only: [ :create, :destroy ], controller: "users/book_access"
+    end
     resources :uploads, only: [ :index, :new, :create, :show, :destroy ] do
       member do
         post :retry
