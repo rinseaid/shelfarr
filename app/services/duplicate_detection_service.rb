@@ -25,7 +25,7 @@ class DuplicateDetectionService
   class << self
     # Check if a book can be requested
     # Returns a Result with status, message, and any existing records
-    def check(work_id:, edition_id: nil, book_type:, source_work_ids: nil, existing_books_lookup: nil)
+    def check(work_id:, edition_id: nil, book_type:, source_work_ids: nil, existing_books_lookup: nil, user: nil)
       book_type = book_type.to_s
       work_ids = [ work_id, *Array(source_work_ids) ].compact_blank.uniq
 
@@ -45,12 +45,16 @@ class DuplicateDetectionService
       # Check 2: Same work + type already acquired
       existing_book = find_existing_book(work_ids, book_type: book_type, existing_books_lookup: existing_books_lookup)
       if existing_book&.acquired?
-        return Result.new(
-          status: BLOCK,
-          message: "This #{label_for(book_type)} is already in your library.",
-          existing_book: existing_book,
-          existing_request: nil
-        )
+        visible = user.nil? || user.admin? || !SettingsService.get(:strict_visibility, default: false) ||
+                  user.has_book_access?(existing_book)
+        if visible
+          return Result.new(
+            status: BLOCK,
+            message: "This #{label_for(book_type)} is already in your library.",
+            existing_book: existing_book,
+            existing_request: nil
+          )
+        end
       end
 
       # Check 3: Same work + type has pending/active request

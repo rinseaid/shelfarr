@@ -120,6 +120,7 @@ class SettingsService
     audiobookshelf_ebook_scan_library_ids: { type: "string", default: "", category: "audiobookshelf", description: "Additional library IDs to scan for ebook duplicate detection (comma-separated). Delivery still goes to the Ebook Library above." },
     audiobookshelf_comicbook_scan_library_ids: { type: "string", default: "", category: "audiobookshelf", description: "Additional library IDs to scan for Comics & Manga duplicate detection (comma-separated). Delivery still goes to the Comics & Manga Library above." },
     audiobookshelf_library_sync_interval: { type: "integer", default: 3600, category: "audiobookshelf", description: "Seconds between automatic library inventory sync jobs" },
+    strict_visibility: { type: "boolean", default: false, category: "audiobookshelf", description: "When true, acquired books are hidden from users without an explicit book access rule" },
 
     # Output Paths
     audiobook_output_path: { type: "string", default: "/audiobooks", category: "paths", description: "Directory for completed audiobooks" },
@@ -294,6 +295,7 @@ class SettingsService
     jackett_url: "Jackett URL",
     newznab_url: "Newznab URL",
     library_platform: "Active Library Platform",
+    strict_visibility: "Strict visibility",
     audiobookshelf_url: "Audiobookshelf URL",
     audiobookshelf_api_key: "Audiobookshelf API Key",
     bookorbit_url: "BookOrbit URL",

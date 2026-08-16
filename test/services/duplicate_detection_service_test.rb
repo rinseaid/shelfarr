@@ -249,10 +249,79 @@ class DuplicateDetectionServiceTest < ActiveSupport::TestCase
       open_library_work_id: "OL_BLOCKED",
       file_path: "/ebooks/Book.epub"
     )
-
     refute DuplicateDetectionService.can_request?(
       work_id: "OL_BLOCKED",
       book_type: "ebook"
     )
+  end
+
+  test "blocks acquired book for a user with a rule under strict visibility" do
+    book = Book.create!(
+      title: "Strict Visible",
+      book_type: :ebook,
+      open_library_work_id: "OL_STRICT_VISIBLE",
+      file_path: "/library/ebook/strict-visible"
+    )
+    user = users(:one)
+    BookAccessRule.create!(user: user, book: book)
+
+    SettingsService.set(:strict_visibility, true)
+    result = DuplicateDetectionService.check(
+      work_id: "OL_STRICT_VISIBLE",
+      book_type: "ebook",
+      user: user
+    )
+    assert result.block?
+  end
+
+  test "allows acquired book for a user without a rule under strict visibility" do
+    book = Book.create!(
+      title: "Strict Hidden",
+      book_type: :ebook,
+      open_library_work_id: "OL_STRICT_HIDDEN",
+      file_path: "/library/ebook/strict-hidden"
+    )
+    user = users(:one)
+    SettingsService.set(:strict_visibility, true)
+    result = DuplicateDetectionService.check(
+      work_id: "OL_STRICT_HIDDEN",
+      book_type: "ebook",
+      user: user
+    )
+    assert result.allow?
+  end
+
+  test "blocks acquired book for anyone when strict visibility is off" do
+    book = Book.create!(
+      title: "Non Strict",
+      book_type: :ebook,
+      open_library_work_id: "OL_NON_STRICT",
+      file_path: "/library/ebook/non-strict"
+    )
+    user = users(:one)
+    SettingsService.set(:strict_visibility, false)
+    result = DuplicateDetectionService.check(
+      work_id: "OL_NON_STRICT",
+      book_type: "ebook",
+      user: user
+    )
+    assert result.block?
+  end
+
+  test "admin is always blocked for acquired books under strict visibility" do
+    Book.create!(
+      title: "Admin Acquired",
+      book_type: :ebook,
+      open_library_work_id: "OL_ADMIN_ACQUIRED",
+      file_path: "/library/ebook/admin-acquired"
+    )
+    admin = users(:two)
+    SettingsService.set(:strict_visibility, true)
+    result = DuplicateDetectionService.check(
+      work_id: "OL_ADMIN_ACQUIRED",
+      book_type: "ebook",
+      user: admin
+    )
+    assert result.block?
   end
 end

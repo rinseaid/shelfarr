@@ -34,4 +34,34 @@
       </div>
     </dl>
   </div>
+
+  <div class="mt-8 bg-gray-900 rounded-lg border border-gray-800 p-6">
+    <h2 class="font-bold text-xl text-white mb-4">Book access</h2>
+
+    <ul class="divide-y divide-gray-800">
+      <% @book_access_rules.each do |rule| %>
+        <li class="py-3 flex items-center justify-between">
+          <span class="text-gray-100">
+            <%= rule.book.title %>
+            <span class="text-xs text-gray-400">(<%= rule.book.book_type_label %>)</span>
+          </span>
+          <%= button_to "Revoke",
+            admin_user_book_access_path(user_id: @user.id, id: rule.book_id),
+            method: :delete,
+            class: "rounded-md px-3 py-1 bg-red-700 hover:bg-red-600 text-white text-sm" %>
+        </li>
+      <% end %>
+      <% if @book_access_rules.empty? %>
+        <li class="py-3 text-gray-400">No book access rules granted.</li>
+      <% end %>
+    </ul>
+
+    <%= form_with url: admin_user_book_access_index_path(user_id: @user.id), method: :post, class: "mt-4 flex items-end gap-3" do |f| %>
+      <div class="flex-1">
+        <%= f.label :book_id, "Book ID", class: "block text-sm font-medium text-gray-400 mb-1" %>
+        <%= f.text_field :book_id, placeholder: "Book ID", class: "w-full rounded-md bg-gray-800 border border-gray-700 px-3 py-2 text-gray-100" %>
+      </div>
+      <%= f.submit "Grant", class: "rounded-md px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white" %>
+    <% end %>
+  </div>
 </div>

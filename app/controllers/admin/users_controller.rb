@@ -7,6 +7,7 @@ module Admin
     end
 
     def show
+      @book_access_rules = @user.book_access_rules.includes(:book).order(:created_at)
     end
 
     def new

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_23_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_000001) do
   create_table "acquisition_providers", force: :cascade do |t|
     t.boolean "allow_private_network", default: false, null: false
     t.string "api_key"
@@ -61,6 +61,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_120000) do
     t.index ["token_digest"], name: "index_api_tokens_on_token_digest", unique: true
     t.index ["token_prefix"], name: "index_api_tokens_on_token_prefix"
     t.index ["user_id"], name: "index_api_tokens_on_user_id"
+  end
+
+  create_table "book_access_rules", force: :cascade do |t|
+    t.integer "book_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "granted_by_id"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["book_id"], name: "index_book_access_rules_on_book_id"
+    t.index ["granted_by_id"], name: "index_book_access_rules_on_granted_by_id"
+    t.index ["user_id", "book_id"], name: "index_book_access_rules_on_user_id_and_book_id", unique: true
+    t.index ["user_id"], name: "index_book_access_rules_on_user_id"
   end
 
   create_table "books", force: :cascade do |t|
@@ -575,6 +587,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_120000) do
 
   add_foreign_key "activity_logs", "users"
   add_foreign_key "api_tokens", "users"
+  add_foreign_key "book_access_rules", "books"
+  add_foreign_key "book_access_rules", "users"
+  add_foreign_key "book_access_rules", "users", column: "granted_by_id"
   add_foreign_key "download_routing_rules", "download_clients"
   add_foreign_key "downloads", "requests"
   add_foreign_key "downloads", "search_results", on_delete: :nullify

@@ -81,6 +81,13 @@ Rails.application.routes.draw do
         end
       end
       resources :users, only: [ :create ]
+      namespace :admin do
+        resources :users, only: [] do
+          resources :book_access, only: [ :index, :create ], controller: "book_access_rules"
+          delete "book_access/:book_id", to: "book_access_rules#destroy", as: "book_access"
+        end
+        post "book_access/import", to: "book_access_imports#create"
+      end
     end
   end
 
@@ -94,7 +101,9 @@ Rails.application.routes.draw do
     root "dashboard#index"
     post "check_updates", to: "dashboard#check_updates"
     post "run_health_check", to: "dashboard#run_health_check"
-    resources :users
+    resources :users do
+      resources :book_access, only: [ :create, :destroy ], controller: "users/book_access"
+    end
     resources :uploads, only: [ :index, :new, :create, :show, :destroy ] do
       member do
         post :retry

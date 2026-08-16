@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :uploads, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :activity_logs, dependent: :destroy
+  has_many :book_access_rules, dependent: :destroy
 
   scope :active, -> { where(deleted_at: nil) }
 
@@ -37,6 +38,11 @@ class User < ApplicationRecord
     if: -> { password.present? && !oidc_user? }
 
   before_create :set_admin_if_first_user
+
+  # True when this user has been granted access to the given book (work + format).
+  def has_book_access?(book)
+    book_access_rules.exists?(book_id: book.id)
+  end
 
   # Check if the account is currently locked
   def locked?

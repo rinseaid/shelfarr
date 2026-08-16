@@ -196,6 +196,10 @@ Shelfarr supports OpenID Connect for single sign-on with identity providers like
 | **Audiobookshelf** / **BookOrbit** / **Grimmory** | Library management |
 | **Discord** / **Telegram** / **Webhooks** | Notifications |
 
+## Per-user book visibility
+
+When strict visibility is enabled, an acquired book is only shown to users with an explicit book access rule. Requesting a hidden acquired book creates a normal acquisition for that user. Integrators can watch the existing `request_completed` webhook to reconcile a user's visibility in the library platform (e.g. setting per-user tags or library access in Audiobookshelf or BookOrbit). Shelfarr's own library catalog is not filtered; visibility is the reflection consumer's responsibility.
+
 ## Requirements
 
 - Docker
