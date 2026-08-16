@@ -61,7 +61,8 @@ class RequestCreationService
           work_id: input.work_id,
           source_work_ids: input.source_work_ids,
           book_type: book_type,
-          existing_books_lookup: existing_books_lookup
+          existing_books_lookup: existing_books_lookup,
+          user: user
         )
 
         if duplicate_check.block?
